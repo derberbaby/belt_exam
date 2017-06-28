@@ -6,6 +6,7 @@ from .models import User, Trip
 from django.db.models import Q
 from django.contrib import messages
 from django.core.urlresolvers import reverse
+import datetime
 
 # Create your views here.
 def index(request):
@@ -60,11 +61,24 @@ def travels(request):
         messages.error(request, 'Log in or register first')
         return redirect('/')
 
+#  Do not allow users to join trips that conflict with current trips
+
 def join_trip(request, trip_id):
-    trip = Trip.objects.get(id=trip_id)
-    user = User.objects.get(id=request.session['user'])
-    jointrip = trip.party_people.add(user)
-    return redirect(reverse('travels'))
+    new_trip = Trip.objects.get(id=trip_id)
+    result = Trip.objects.join_trip(new_trip.id, request.session['user'])
+
+    if isinstance(result, list):
+        for err in result:
+            messages.error(request, err)
+        return redirect(reverse('travels'))
+    else:
+        return redirect(reverse('travels'))
+
+# def join_trip(request, trip_id):
+#     trip = Trip.objects.get(id=trip_id)
+#     user = User.objects.get(id=request.session['user'])
+#     join_trip = trip.party_people.add(user)
+#     return redirect(reverse('travels'))
 
 def destination(request, trip_id):
     trip = Trip.objects.get(id=trip_id)

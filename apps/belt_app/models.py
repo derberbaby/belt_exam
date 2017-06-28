@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib import messages
+from django.db.models import Q
 import re
 import datetime
 import dateutil.relativedelta
@@ -123,14 +124,18 @@ class TripManager(models.Manager):
                 messages.append('Date TO cannot be before Date FROM')
 
         #  Check for any overlapping of trips
-        #  user = User.objects.get(id=user_id)
-        # user_trips = Trip.objects.filter(planned_by__id=user.id) | Trip.objects.filter(party_people__id=user.id)
-        #
-        # for trip in user_trips:
-        #     start_date = datetime.datetime.strptime(data['start_date'], "%Y-%m-%d")
-        #     end_date = datetime.datetime.strptime(data['end_date'], "%Y-%m-%d")
-        #
-        #     if
+        user = User.objects.get(id=user_id)
+        user_trips = Trip.objects.filter(planned_by__id=user.id) | Trip.objects.filter(party_people__id=user.id)
+        start_date = datetime.datetime.strptime(data['start_date'], "%Y-%m-%d").date()
+        end_date = datetime.datetime.strptime(data['end_date'], "%Y-%m-%d").date()
+
+        for trip in user_trips:
+            if start_date >= trip.start_date and start_date <= trip.end_date:
+                messages.append('You have a conflicting trip')
+                break
+            elif end_date >= trip.start_date and end_date <= trip.end_date:
+                messages.append('You have a conflicting trip')
+                break
 
         if len(messages) == 0:
             user = User.objects.get(id=user_id)
@@ -138,6 +143,34 @@ class TripManager(models.Manager):
             return new_trip.id
         else:
             return messages
+
+    #  Do not allow users to join trips that conflict with current trips
+
+    def join_trip(self, trip_id, user_id):
+        messages = []
+
+        current_user = User.objects.get(id=user_id)
+        this_trip = Trip.objects.get(id=trip_id) #paris
+        current_trips = Trip.objects.filter(Q(planned_by__id=current_user.id) | Q(party_people__id=current_user.id)) #test
+
+        for trip in current_trips:
+            if this_trip.start_date >= trip.start_date and this_trip.start_date <= trip.end_date:
+                messages.append('You have a conflicting trip')
+                break
+            elif this_trip.end_date >= trip.start_date and this_trip.end_date <= trip.end_date:
+                messages.append('You have a conflicting trip')
+                break
+            elif this_trip.start_date >= trip.start_date and this_trip.end_date <= trip.end_date:
+                messages.append('You have a conflicting trip')
+            elif this_trip.start_date <= trip.start_date and this_trip.end_date >= trip.end_date:
+                messages.append('You have a conflicting trip')
+
+        if len(messages) == 0:
+            join_trip = this_trip.party_people.add(current_user)
+            return join_trip
+        else:
+            return messages
+
 
 class Trip(models.Model):
     planned_by = models.ForeignKey(User)

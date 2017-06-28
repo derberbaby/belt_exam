@@ -18,6 +18,9 @@
       {% for person in party_people %}
         <p>{{ person.name }}</p>
       {% endfor %}
+    {% else %}
+      <h2>Currently:</h2>
+      <p>Solo trip!</p>
     {% endif %}
   </body>
 </html>

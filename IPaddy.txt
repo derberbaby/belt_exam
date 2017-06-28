@@ -1,0 +1,5 @@
+Public DNS (IPv4)
+ec2-54-193-100-103.us-west-1.compute.amazonaws.com
+
+IPv4 Public IP
+54.193.100.103
