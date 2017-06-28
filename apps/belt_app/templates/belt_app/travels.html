@@ -53,7 +53,7 @@
         </tr>
         {% for trip in other_trips %}
           <tr>
-            <td>{{ trip.destination }}</td>
+            <td><a href="{% url 'destination' trip.id %}">{{ trip.destination }}</a></td>
             <td>{{ trip.start_date }}</td>
             <td>{{ trip.end_date }}</td>
             <td>{{ trip.plan }}</td>
