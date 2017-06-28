@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Add Plan</title>
+  </head>
+  <body>
+    <a href="{% url 'travels' %}">Home</a> -
+    <a href="{% url 'logout' %}">Logout</a>
+    <h1>Add a Trip</h1>
+    <div id='error'>
+      {% if messages  %}
+        {% for message in messages %}
+          <p>{{message}}</p>
+        {% endfor %}
+      {% endif %}
+    </div>
+    <form class="" action="/add_new" method="post">
+      {% csrf_token %}
+      <p>Destination: <input type="text" name="destination" value=""></p>
+      <p>Description: <input type="text" name="plan" value=""></p>
+      <p>Travel Date From: <input type="date" name="start_date" value=""></p>
+      <p>Travel Date To: <input type="date" name="end_date" value=""></p>
+      <p><input type="submit" name="" value="Add"></p>
+    </form>
+  </body>
+</html>
